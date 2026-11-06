@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistical Sampling Learning Tool</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --bg-color: #f4f6f9;
+            --panel-bg: #ffffff;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --border-color: #ced4da;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --error-border: #f5c6cb;
+            --focus-ring: #80bdff;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+            padding: 1.5rem;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        p.description {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #fafbfc;
+        }
+
+        legend {
+            font-weight: 600;
+            padding: 0 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .radio-label input[type="radio"] {
+            margin-right: 0.5rem;
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--focus-ring);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.25);
+        }
+
+        .dynamic-section {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .dynamic-section.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        #alert-container {
+            margin-top: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .alert-error {
+            color: var(--error-text);
+            background-color: var(--error-bg);
+            border-color: var(--error-border);
+        }
+
+        .alert-success {
+            color: var(--success-text);
+            background-color: var(--success-bg);
+            border-color: var(--success-bg);
+        }
+
+        .results-area {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .results-area.active {
+            display: block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .data-box {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+
+        .data-box h3 {
+            padding: 1rem;
+            margin: 0;
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.1rem;
+        }
+
+        .data-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 0;
+        }
+
+        .data-list li {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .data-list li .index {
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        .data-list li:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .data-list li.sampled {
+            background-color: #e6f2ff;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stats-summary {
+            padding: 1rem;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .explanation {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid, .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Visually hidden class for screen reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+<main>
+    <h1>Statistical Sampling Tool</h1>
+    <p class="description">Generate or upload a numerical dataset, then draw a subset using simple random sampling or systematic sampling to observe how samples represent populations.</p>
+
+    <form id="sampling-form" novalidate>
+        
+        <!-- Dataset Source Fieldset -->
+        <fieldset>
+            <legend>1. Define Population Dataset</legend>
+            <div class="radio-group" role="radiogroup" aria-labelledby="source-legend">
+                <span id="source-legend" class="sr-only">Choose data source</span>
+                <label class="radio-label">
+                    <input type="radio" name="dataSource" value="generate" checked aria-controls="section-generate">
+                    Generate Random Data
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="dataSource" value="upload" aria-controls="section-upload">
+                    Upload Dataset
+                </label>
+            </div>
+
+            <!-- Generate Data Section -->
+            <div id="section-generate" class="dynamic-section active">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="popSize">Population Size (N):</label>
+                        <input type="number" id="popSize" min="10" max="10000" value="100" aria-describedby="popSize-desc">
+                        <span id="popSize-desc" class="sr-only">Enter a number between 10 and 10000</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="minValue">Minimum Value:</label>
+                        <input type="number" id="minValue" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxValue">Maximum Value:</label>
+                        <input type="number" id="maxValue" value="100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Data Section -->
+            <div id="section-upload" class="dynamic-section">
+                <div class="form-group">
+                    <label for="dataFile">Upload Data File (.txt or .csv):</label>
+                    <input type="file" id="dataFile" accept=".txt,.csv,.xlsx" aria-describedby="file-desc">
+                    <p id="file-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem;">
+                        Note: Direct .xlsx parsing requires external plugins. For this tool, please save Excel files as .csv before uploading. Extraneous text will be ignored; only numbers are extracted.
+                    </p>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Sampling Method Fieldset -->
+        <fieldset>
+            <legend>2. Define Sampling Procedure</legend>
+            
+            <div class="radio-group" role="radiogroup" aria-labelledby="method-legend">
+                <span id="method-legend" class="sr-only">Choose sampling method</span>
+                <label class="radio-label">
+                    <input type="radio" name="sampleMethod" value="srs" checked>
+                    Simple Random Sampling
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="sampleMethod" value="systematic">
+                    Systematic Sampling
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="sampleSize">Sample Size (n):</label>
+                <input type="number" id="sampleSize" min="1" value="10" required aria-describedby="sampleSize-desc">
+                <span id="sampleSize-desc" class="sr-only">Enter the desired number of items to sample</span>
+            </div>
+        </fieldset>
+
+        <button type="submit" id="submitBtn">Perform Sampling</button>
+    </form>
+
+    <!-- Alert Region for Screen Readers (Errors/Success) -->
+    <div id="alert-container" aria-live="assertive" role="alert"></div>
+
+    <!-- Results Region -->
+    <section id="results-section" class="results-area" aria-label="Sampling Results">
+        <h2>Results</h2>
+        
+        <div id="explanation-box" class="explanation"></div>
+
+        <div class="results-grid">
+            <!-- Population View -->
+            <div class="data-box">
+                <h3>Population (N = <span id="res-pop-n">0</span>)</h3>
+                <ul id="pop-list" class="data-list" aria-label="Population Data List"></ul>
+                <div class="stats-summary">
+                    <strong>Population Mean (μ):</strong> <span id="res-pop-mean">0</span>
+                </div>
+            </div>
+
+            <!-- Sample View -->
+            <div class="data-box">
+                <h3>Sample (n = <span id="res-samp-n">0</span>)</h3>
+                <ul id="samp-list" class="data-list" aria-label="Sampled Data List"></ul>
+                <div class="stats-summary">
+                    <strong>Sample Mean (x̄):</strong> <span id="res-samp-mean">0</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Form elements
+        const form = document.getElementById('sampling-form');
+        const radiosSource = document.getElementsByName('dataSource');
+        const sectionGenerate = document.getElementById('section-generate');
+        const sectionUpload = document.getElementById('section-upload');
+        const alertContainer = document.getElementById('alert-container');
+        const resultsSection = document.getElementById('results-section');
+        
+        // Input fields
+        const popSizeInput = document.getElementById('popSize');
+        const minValInput = document.getElementById('minValue');
+        const maxValInput = document.getElementById('maxValue');
+        const fileInput = document.getElementById('dataFile');
+        const sampleSizeInput = document.getElementById('sampleSize');
+        const radiosMethod = document.getElementsByName('sampleMethod');
+
+        // Toggle Data Source Sections
+        radiosSource.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if(e.target.value === 'generate') {
+                    sectionGenerate.classList.add('active');
+                    sectionUpload.classList.remove('active');
+                } else {
+                    sectionGenerate.classList.remove('active');
+                    sectionUpload.classList.add('active');
+                }
+            });
+        });
+
+        // Main Submit Handler
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            clearAlerts();
+            resultsSection.classList.remove('active');
+
+            const source = document.querySelector('input[name="dataSource"]:checked').value;
+            const method = document.querySelector('input[name="sampleMethod"]:checked').value;
+            const sampleSize = parseInt(sampleSizeInput.value, 10);
+
+            if (isNaN(sampleSize) || sampleSize <= 0) {
+                return showAlert("Sample size must be a positive integer.", "error");
+            }
+
+            if (source === 'generate') {
+                const N = parseInt(popSizeInput.value, 10);
+                const min = parseFloat(minValInput.value);
+                const max = parseFloat(maxValInput.value);
+
+                if (isNaN(N) || N <= 0) return showAlert("Population size must be a positive integer.", "error");
+                if (isNaN(min) || isNaN(max) || min >= max) return showAlert("Ensure minimum value is strictly less than maximum value.", "error");
+                if (sampleSize > N) return showAlert("Sample size cannot be greater than population size.", "error");
+
+                // Generate random data
+                const dataset = [];
+                for(let i = 0; i < N; i++) {
+                    // Random float rounded to 2 decimals for realistic data look
+                    let val = Math.random() * (max - min) + min;
+                    dataset.push(Math.round(val * 100) / 100);
+                }
+                processSampling(dataset, sampleSize, method);
+
+            } else {
+                // Upload path
+                const file = fileInput.files[0];
+                if (!file) return showAlert("Please select a file to upload.", "error");
+                
+                if (file.name.toLowerCase().endsWith('.xlsx')) {
+                    return showAlert("Error: Native parsing of Excel (.xlsx) files requires external libraries, which are disabled for this static tool. Please save your file as a .CSV or .TXT and upload again.", "error");
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const text = event.target.result;
+                    // Extract all numbers (including negatives and decimals)
+                    const numberPattern = /-?\d+(\.\d+)?/g;
+                    const matches = text.match(numberPattern);
+                    
+                    if (!matches || matches.length === 0) {
+                        return showAlert("No valid numerical data could be extracted from the uploaded file.", "error");
+                    }
+                    
+                    const dataset = matches.map(Number);
+                    if (sampleSize > dataset.length) {
+                        return showAlert(`Sample size (${sampleSize}) cannot be greater than the extracted population size (${dataset.length}).`, "error");
+                    }
+                    processSampling(dataset, sampleSize, method);
+                };
+                reader.onerror = function() {
+                    showAlert("An error occurred while reading the file.", "error");
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function processSampling(population, n, method) {
+            const N = population.length;
+            let sampledIndices = [];
+            let explanation = "";
+
+            if (method === 'srs') {
+                // Simple Random Sampling (using Fisher-Yates shuffle logic on indices)
+                let indices = Array.from({length: N}, (_, i) => i);
+                for (let i = indices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [indices[i], indices[j]] = [indices[j], indices[i]];
+                }
+                sampledIndices = indices.slice(0, n).sort((a,b) => a - b);
+                explanation = `<strong>Simple Random Sampling (SRS):</strong> ${n} items were randomly selected from the population of ${N}. Every subset of size ${n} had an equal chance of being selected.`;
+            } else {
+                // Systematic Sampling
+                const k = Math.floor(N / n);
+                if (k === 0) {
+                    return showAlert("Sample size is too large for systematic sampling with this population size.", "error");
+                }
+                const randomStart = Math.floor(Math.random() * k); // 0 to k-1
+                
+                for (let i = 0; i < n; i++) {
+                    sampledIndices.push(randomStart + (i * k));
+                }
+                explanation = `<strong>Systematic Sampling:</strong> The interval size (k) is calculated as Population(${N}) / Sample(${n}) = ${k}. A random starting index (${randomStart + 1}) was chosen between 1 and ${k}. Then, every ${k}th element was selected.`;
+            }
+
+            renderResults(population, sampledIndices, explanation);
+            showAlert("Sampling completed successfully.", "success");
+        }
+
+        function renderResults(population, sampledIndices, explanationHtml) {
+            resultsSection.classList.add('active');
+            
+            // Build Maps for quick lookup
+            const sampleSet = new Set(sampledIndices);
+            const sampleData = sampledIndices.map(idx => population[idx]);
+
+            // Calculate Means
+            const popMean = (population.reduce((a,b)=>a+b, 0) / population.length).toFixed(2);
+            const sampMean = (sampleData.reduce((a,b)=>a+b, 0) / sampleData.length).toFixed(2);
+
+            // Update DOM Summaries
+            document.getElementById('res-pop-n').textContent = population.length;
+            document.getElementById('res-samp-n').textContent = sampleData.length;
+            document.getElementById('res-pop-mean').textContent = popMean;
+            document.getElementById('res-samp-mean').textContent = sampMean;
+            document.getElementById('explanation-box').innerHTML = explanationHtml;
+
+            // Render Population List (highlighting samples)
+            const popListUl = document.getElementById('pop-list');
+            popListUl.innerHTML = '';
+            
+            // For large datasets, DOM rendering can freeze. Limit displayed rows logically or just render them.
+            // Using a DocumentFragment for performance.
+            const popFragment = document.createDocumentFragment();
+            const MAX_DISPLAY = 2000; // Protect browser from crashing on huge datasets
+            
+            const displayLimit = Math.min(population.length, MAX_DISPLAY);
+            for(let i = 0; i < displayLimit; i++) {
+                const li = document.createElement('li');
+                if (sampleSet.has(i)) li.classList.add('sampled');
+                
+                const idxSpan = document.createElement('span');
+                idxSpan.className = 'index';
+                idxSpan.textContent = `Item ${i+1}`;
+                
+                const valSpan = document.createElement('span');
+                valSpan.textContent = population[i];
+
+                li.appendChild(idxSpan);
+                li.appendChild(valSpan);
+                popFragment.appendChild(li);
+            }
+            if (population.length > MAX_DISPLAY) {
+                const li = document.createElement('li');
+                li.textContent = `... and ${population.length - MAX_DISPLAY} more items (Display limited to prevent lag)`;
+                popFragment.appendChild(li);
+            }
+            popListUl.appendChild(popFragment);
+
+            // Render Sample List
+            const sampListUl = document.getElementById('samp-list');
+            sampListUl.innerHTML = '';
+            const sampFragment = document.createDocumentFragment();
+            sampledIndices.forEach((popIdx, i) => {
+                const li = document.createElement('li');
+                
+                const idxSpan = document.createElement('span');
+                idxSpan.className = 'index';
+                idxSpan.textContent = `Original Item ${popIdx + 1}`;
+                
+                const valSpan = document.createElement('span');
+                valSpan.textContent = population[popIdx];
+
+                li.appendChild(idxSpan);
+                li.appendChild(valSpan);
+                sampFragment.appendChild(li);
+            });
+            sampListUl.appendChild(sampFragment);
+
+            // Scroll to results for UX
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Set focus to the results section for screen reader accessibility
+            resultsSection.setAttribute("tabindex", "-1");
+            resultsSection.focus();
+        }
+
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            if (type === "success") {
+                setTimeout(clearAlerts, 5000);
+            }
+        }
+
+        function clearAlerts() {
+            alertContainer.innerHTML = '';
+        }
+    });
+</script>
+</body>
+</html>
